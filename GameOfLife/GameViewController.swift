@@ -50,8 +50,6 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
                 }
             }
         }
-        
-       
     }
     
     func placeBox(pos: SCNVector3 = SCNVector3(x: 0, y: 0, z: 0)){
@@ -71,44 +69,34 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
     }
     
     func setupScene(){
-        // create and add a camera to the scene
+        // CAMERA
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
         scene.rootNode.addChildNode(cameraNode)
-        
-        // place the camera
         cameraNode.position = SCNVector3(x: Float(size/4), y: Float(size/4), z: Float(size/4))
         cameraNode.look(at: SCNVector3(x: 0, y: 0, z: 0))
         
-        // create and add a light to the scene
+        // OMNI LIGHT
         let lightNode = SCNNode()
         lightNode.light = SCNLight()
         lightNode.light!.type = .omni
         lightNode.position = SCNVector3(x: 0, y: 10, z: 10)
         scene.rootNode.addChildNode(lightNode)
         
-        // create and add an ambient light to the scene
+        // AMBIENT LIGHT
         let ambientLightNode = SCNNode()
         ambientLightNode.light = SCNLight()
         ambientLightNode.light!.type = .ambient
         ambientLightNode.light!.color = UIColor.darkGray
         scene.rootNode.addChildNode(ambientLightNode)
         
-        // retrieve the SCNView
         let scnView = self.view as! SCNView
         scnView.delegate = self
-        
-        // set the scene to the view
         scnView.scene = scene
+        
         scnView.isPlaying = true
-        
-        // allows the user to manipulate the camera
         scnView.allowsCameraControl = true
-        
-        // show statistics such as fps and timing information
         scnView.showsStatistics = false
-        
-        // configure the view
         scnView.backgroundColor = UIColor.black
     }
     
@@ -132,10 +120,7 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
         if time > renderTime {
             grid.applyRules()
             showGen()
-            
             renderTime = time + duration
-            
         }
     }
-
 }
