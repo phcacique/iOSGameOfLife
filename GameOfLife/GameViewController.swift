@@ -5,7 +5,7 @@
 //  Created by Pedro Cacique on 31/10/19.
 //  Copyright © 2019 Pedro Cacique. All rights reserved.
 //
-//  BRONZE
+//  SILVER
 
 import UIKit
 import QuartzCore
