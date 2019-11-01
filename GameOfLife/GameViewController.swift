@@ -9,22 +9,75 @@
 import UIKit
 import QuartzCore
 import SceneKit
+import SwiftGameOfLife
 
-class GameViewController: UIViewController {
+class GameViewController: UIViewController, SCNSceneRendererDelegate {
 
+    var scene: SCNScene
+    var grid: Grid
+    var nodes: [SCNNode] = []
+    var renderTime:TimeInterval = 0
+    let duration:TimeInterval = 0.5
+    let size:Int = 100
+    
+    required init?(coder aDecoder: NSCoder) {
+        scene = SCNScene()
+        grid = Grid(width: size, height: size, isRandom: true)
+        grid.addRule(CountRule(name: "Solitude", startState: .alive, endState: .dead, count: 2, type: .lessThan))
+        grid.addRule(CountRule(name: "Survive2", startState: .alive, endState: .alive, count: 2, type: .equals))
+        grid.addRule(CountRule(name: "Survive3", startState: .alive, endState: .alive, count: 3, type: .equals))
+        grid.addRule(CountRule(name: "Overpopulation", startState: .alive, endState: .dead, count: 3, type: .greaterThan))
+        grid.addRule(CountRule(name: "Birth", startState: .dead, endState: .alive, count: 3, type: .equals))
+        super.init(coder: aDecoder)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // create a new scene
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
+        setupScene()
+        showGen()
+    }
+    
+    func showGen(){
+        removeAllNodes()
+        for i in 0..<grid.width {
+            for j in 0..<grid.height {
+                if grid.cells[i][j].state == .alive {
+                    let x:Float = Float(i) * 1.05 - Float(grid.width/2)
+                    let z:Float = Float(j) * 1.05 - Float(grid.height/2)
+                    placeBox( pos: SCNVector3(x: x, y: 0, z: z) )
+                }
+            }
+        }
         
+       
+    }
+    
+    func placeBox(pos: SCNVector3 = SCNVector3(x: 0, y: 0, z: 0)){
+        let boxGeometry = SCNBox(width: 1.0, height: 1.0, length: 1.0, chamferRadius: 0.1)
+        let boxNode = SCNNode(geometry: boxGeometry)
+        boxNode.position = pos
+        scene.rootNode.addChildNode(boxNode)
+        nodes.append(boxNode)
+    }
+    
+    func removeAllNodes(){
+        for n in nodes {
+            n.removeAllActions()
+            n.removeFromParentNode()
+        }
+        nodes = []
+    }
+    
+    func setupScene(){
         // create and add a camera to the scene
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
         scene.rootNode.addChildNode(cameraNode)
         
         // place the camera
-        cameraNode.position = SCNVector3(x: 0, y: 0, z: 15)
+        cameraNode.position = SCNVector3(x: Float(size/4), y: Float(size/4), z: Float(size/4))
+        cameraNode.look(at: SCNVector3(x: 0, y: 0, z: 0))
         
         // create and add a light to the scene
         let lightNode = SCNNode()
@@ -40,66 +93,22 @@ class GameViewController: UIViewController {
         ambientLightNode.light!.color = UIColor.darkGray
         scene.rootNode.addChildNode(ambientLightNode)
         
-        // retrieve the ship node
-        let ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
-        
-        // animate the 3d object
-        ship.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: 1)))
-        
         // retrieve the SCNView
         let scnView = self.view as! SCNView
+        scnView.delegate = self
         
         // set the scene to the view
         scnView.scene = scene
+        scnView.isPlaying = true
         
         // allows the user to manipulate the camera
         scnView.allowsCameraControl = true
         
         // show statistics such as fps and timing information
-        scnView.showsStatistics = true
+        scnView.showsStatistics = false
         
         // configure the view
         scnView.backgroundColor = UIColor.black
-        
-        // add a tap gesture recognizer
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
-        scnView.addGestureRecognizer(tapGesture)
-    }
-    
-    @objc
-    func handleTap(_ gestureRecognize: UIGestureRecognizer) {
-        // retrieve the SCNView
-        let scnView = self.view as! SCNView
-        
-        // check what nodes are tapped
-        let p = gestureRecognize.location(in: scnView)
-        let hitResults = scnView.hitTest(p, options: [:])
-        // check that we clicked on at least one object
-        if hitResults.count > 0 {
-            // retrieved the first clicked object
-            let result = hitResults[0]
-            
-            // get its material
-            let material = result.node.geometry!.firstMaterial!
-            
-            // highlight it
-            SCNTransaction.begin()
-            SCNTransaction.animationDuration = 0.5
-            
-            // on completion - unhighlight
-            SCNTransaction.completionBlock = {
-                SCNTransaction.begin()
-                SCNTransaction.animationDuration = 0.5
-                
-                material.emission.contents = UIColor.black
-                
-                SCNTransaction.commit()
-            }
-            
-            material.emission.contents = UIColor.red
-            
-            SCNTransaction.commit()
-        }
     }
     
     override var shouldAutorotate: Bool {
@@ -115,6 +124,16 @@ class GameViewController: UIViewController {
             return .allButUpsideDown
         } else {
             return .all
+        }
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
+        if time > renderTime {
+            grid.applyRules()
+            showGen()
+            
+            renderTime = time + duration
+            
         }
     }
 

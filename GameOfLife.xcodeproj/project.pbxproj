@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -15,6 +15,7 @@
 		A712AFA8236B765D003AB879 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A712AFA6236B765D003AB879 /* LaunchScreen.storyboard */; };
 		A712AFB3236B765D003AB879 /* GameOfLifeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A712AFB2236B765D003AB879 /* GameOfLifeTests.swift */; };
 		A712AFBE236B765D003AB879 /* GameOfLifeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A712AFBD236B765D003AB879 /* GameOfLifeUITests.swift */; };
+		A712AFCD236B7C1A003AB879 /* SwiftGameOfLife in Frameworks */ = {isa = PBXBuildFile; productRef = A712AFCC236B7C1A003AB879 /* SwiftGameOfLife */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A712AFCD236B7C1A003AB879 /* SwiftGameOfLife in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -144,6 +146,9 @@
 			dependencies = (
 			);
 			name = GameOfLife;
+			packageProductDependencies = (
+				A712AFCC236B7C1A003AB879 /* SwiftGameOfLife */,
+			);
 			productName = GameOfLife;
 			productReference = A712AF98236B765C003AB879 /* GameOfLife.app */;
 			productType = "com.apple.product-type.application";
@@ -216,6 +221,9 @@
 				Base,
 			);
 			mainGroup = A712AF8F236B765C003AB879;
+			packageReferences = (
+				A712AFCB236B7C1A003AB879 /* XCRemoteSwiftPackageReference "SwiftGameOfLife" */,
+			);
 			productRefGroup = A712AF99236B765C003AB879 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -590,6 +598,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A712AFCB236B7C1A003AB879 /* XCRemoteSwiftPackageReference "SwiftGameOfLife" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/phcacique/SwiftGameOfLife.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A712AFCC236B7C1A003AB879 /* SwiftGameOfLife */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A712AFCB236B7C1A003AB879 /* XCRemoteSwiftPackageReference "SwiftGameOfLife" */;
+			productName = SwiftGameOfLife;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A712AF90236B765C003AB879 /* Project object */;
 }
