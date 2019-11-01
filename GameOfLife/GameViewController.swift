@@ -17,18 +17,22 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
     var scene: SCNScene
     var grid: Grid
     var nodes: [SCNNode] = []
-    var renderTime:TimeInterval = 0
-    let duration:TimeInterval = 0.5
-    let size:Int = 100
+    var renderTime: TimeInterval = 0
+    let duration: TimeInterval = 0.1
+    let size: Int = 10
+    var population: [[SCNNode]] = []
+    var currentGen: Int = 0
+    var lightNode: SCNNode
     
     required init?(coder aDecoder: NSCoder) {
         scene = SCNScene()
-        grid = Grid(width: size, height: size, isRandom: true)
+        grid = Grid(width: size, height: size, isRandom: true, proportion: 50)
         grid.addRule(CountRule(name: "Solitude", startState: .alive, endState: .dead, count: 2, type: .lessThan))
         grid.addRule(CountRule(name: "Survive2", startState: .alive, endState: .alive, count: 2, type: .equals))
         grid.addRule(CountRule(name: "Survive3", startState: .alive, endState: .alive, count: 3, type: .equals))
         grid.addRule(CountRule(name: "Overpopulation", startState: .alive, endState: .dead, count: 3, type: .greaterThan))
         grid.addRule(CountRule(name: "Birth", startState: .dead, endState: .alive, count: 3, type: .equals))
+        lightNode = SCNNode()
         super.init(coder: aDecoder)
     }
     
@@ -40,7 +44,8 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
     }
     
     func showGen(){
-        removeAllNodes()
+//        removeAllNodes()
+        swiftGens()
         for i in 0..<grid.width {
             for j in 0..<grid.height {
                 if grid.cells[i][j].state == .alive {
@@ -50,6 +55,18 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
                 }
             }
         }
+        population.append(nodes)
+        currentGen += 1
+    }
+    
+    func swiftGens(){
+        if currentGen > 0{
+            let nodes = population.last!
+            for n in nodes{
+                n.position.y += 1.05
+            }
+        }
+        
     }
     
     func placeBox(pos: SCNVector3 = SCNVector3(x: 0, y: 0, z: 0)){
@@ -61,11 +78,14 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
     }
     
     func removeAllNodes(){
-        for n in nodes {
-            n.removeAllActions()
-            n.removeFromParentNode()
+        for p in population{
+            for n in p {
+                n.removeAllActions()
+                n.removeFromParentNode()
+            }
         }
         nodes = []
+        population = []
     }
     
     func setupScene(){
@@ -73,11 +93,11 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
         scene.rootNode.addChildNode(cameraNode)
-        cameraNode.position = SCNVector3(x: Float(size/4), y: Float(size/4), z: Float(size/4))
+        cameraNode.position = SCNVector3(x: Float(2*size), y: Float(size*10), z: 0)
         cameraNode.look(at: SCNVector3(x: 0, y: 0, z: 0))
         
         // OMNI LIGHT
-        let lightNode = SCNNode()
+        
         lightNode.light = SCNLight()
         lightNode.light!.type = .omni
         lightNode.position = SCNVector3(x: 0, y: 10, z: 10)
@@ -120,6 +140,7 @@ class GameViewController: UIViewController, SCNSceneRendererDelegate {
         if time > renderTime {
             grid.applyRules()
             showGen()
+            lightNode.position.y += 1.05
             renderTime = time + duration
         }
     }
